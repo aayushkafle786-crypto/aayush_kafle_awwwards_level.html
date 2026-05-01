@@ -1,0 +1,635 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blk:#080808;--wht:#f5f2ee;--acc:#ff3c00;--gry:#888;--brd:rgba(245,242,238,0.1)}
+body{background:var(--blk);color:var(--wht);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;cursor:none}
+
+#cursor{position:fixed;width:10px;height:10px;background:var(--acc);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform 0.1s}
+#cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(255,60,0,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all 0.15s ease}
+#cursor-ring.expand{width:60px;height:60px;border-color:var(--acc)}
+
+nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 2.5rem;height:54px;
+  border-bottom:0.5px solid var(--brd);
+  background:rgba(8,8,8,0.95);backdrop-filter:blur(10px);
+}
+.nav-l{display:flex;align-items:center;gap:2.5rem}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:var(--wht)}
+.nav-tag{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--gry);border:0.5px solid var(--brd);padding:0.25rem 0.7rem;border-radius:2px}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-size:0.75rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gry);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--wht)}
+.nav-r{display:flex;align-items:center;gap:1.2rem}
+.nav-score{display:flex;align-items:center;gap:0.5rem;font-size:0.72rem;letter-spacing:1px;color:var(--gry)}
+.score-dot{width:6px;height:6px;background:#00e676;border-radius:50%;animation:blink 1.8s infinite}
+.nav-submit{
+  font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;
+  padding:0.45rem 1.1rem;border:0.5px solid var(--wht);
+  background:transparent;color:var(--wht);cursor:none;
+  transition:background 0.2s,color 0.2s;
+}
+.nav-submit:hover{background:var(--wht);color:var(--blk)}
+
+.ticker{
+  border-bottom:0.5px solid var(--brd);padding:0.5rem 0;
+  overflow:hidden;white-space:nowrap;
+}
+.ticker-inner{display:inline-flex;gap:0;animation:tick 22s linear infinite}
+.ticker-item{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--gry);padding:0 2.5rem;border-right:0.5px solid var(--brd)}
+.ticker-item span{color:var(--acc)}
+
+.hero{
+  display:grid;grid-template-columns:1fr 1fr;
+  min-height:88vh;border-bottom:0.5px solid var(--brd);
+}
+.hero-left{
+  padding:3.5rem 2.5rem;display:flex;flex-direction:column;justify-content:space-between;
+  border-right:0.5px solid var(--brd);
+}
+.hero-eyebrow{font-size:0.65rem;letter-spacing:4px;text-transform:uppercase;color:var(--gry);margin-bottom:2rem}
+.hero-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(5rem,11vw,10rem);
+  line-height:0.9;letter-spacing:-1px;
+  overflow:hidden;
+}
+.hero-name .line{display:block;transform:translateY(100%);animation:revealUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards}
+.hero-name .line:nth-child(2){animation-delay:0.12s;color:transparent;-webkit-text-stroke:1px var(--wht)}
+.hero-name .line:nth-child(3){animation-delay:0.24s}
+.hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;padding-top:3rem}
+.hero-desc{font-size:0.88rem;line-height:1.8;color:var(--gry);max-width:260px}
+.hero-desc strong{color:var(--wht);font-weight:500}
+.hero-cta{
+  font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;
+  display:flex;align-items:center;gap:0.8rem;color:var(--wht);
+  cursor:none;text-decoration:none;
+}
+.cta-arrow{
+  width:44px;height:44px;border:0.5px solid rgba(245,242,238,0.3);
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.2s,border-color 0.2s;
+}
+.hero-cta:hover .cta-arrow{background:var(--acc);border-color:var(--acc)}
+
+.hero-right{display:flex;flex-direction:column}
+.hero-poster{
+  flex:1;position:relative;overflow:hidden;
+  background:#111;display:flex;align-items:center;justify-content:center;
+}
+.poster-canvas{position:absolute;inset:0}
+.poster-label{
+  position:absolute;bottom:1.5rem;left:1.5rem;
+  font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--gry);
+  display:flex;align-items:center;gap:0.6rem;
+}
+.poster-label::before{content:'';width:20px;height:0.5px;background:var(--gry)}
+.hero-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  border-top:0.5px solid var(--brd);
+}
+.stat{padding:1.2rem 1.5rem;border-right:0.5px solid var(--brd);text-align:center}
+.stat:last-child{border-right:none}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:1px;color:var(--wht)}
+.stat-l{font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--gry);margin-top:0.1rem}
+
+.marquee-section{
+  padding:2.5rem 0;border-bottom:0.5px solid var(--brd);
+  overflow:hidden;
+}
+.marquee-track{display:flex;gap:0;white-space:nowrap;animation:marquee 18s linear infinite}
+.marquee-item{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(3rem,6vw,5rem);
+  letter-spacing:2px;padding:0 2rem;
+  color:transparent;-webkit-text-stroke:0.5px rgba(245,242,238,0.2);
+  flex-shrink:0;
+}
+.marquee-item.accent{color:var(--acc);-webkit-text-stroke:none}
+.marquee-dot{font-size:1.5rem;color:var(--acc);align-self:center;padding:0 0.5rem;flex-shrink:0}
+
+.work-section{padding:4rem 2.5rem;border-bottom:0.5px solid var(--brd)}
+.work-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3rem}
+.work-title-wrap{}
+.work-num{font-size:0.65rem;letter-spacing:3px;color:var(--gry);margin-bottom:0.3rem}
+.work-title{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:1px}
+.view-all{font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--gry);text-decoration:none;display:flex;align-items:center;gap:0.6rem;transition:color 0.2s;cursor:none}
+.view-all:hover{color:var(--wht)}
+.work-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:auto auto;gap:0.5px;background:var(--brd)}
+.work-item{
+  background:var(--blk);overflow:hidden;position:relative;
+  aspect-ratio:4/3;cursor:none;
+}
+.work-item.featured{grid-row:span 2;aspect-ratio:unset}
+.work-canvas{width:100%;height:100%;display:block}
+.work-info{
+  position:absolute;bottom:0;left:0;right:0;padding:1.2rem 1.4rem;
+  background:linear-gradient(transparent,rgba(8,8,8,0.9));
+  transform:translateY(100%);transition:transform 0.3s ease;
+}
+.work-item:hover .work-info{transform:translateY(0)}
+.work-tag-sm{font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:0.3rem}
+.work-ttl{font-size:0.9rem;font-weight:500}
+.work-overlay{
+  position:absolute;inset:0;background:rgba(255,60,0,0);
+  transition:background 0.3s;
+}
+.work-item:hover .work-overlay{background:rgba(255,60,0,0.06)}
+
+.about-section{
+  display:grid;grid-template-columns:1fr 1fr;
+  border-bottom:0.5px solid var(--brd);
+}
+.about-l{padding:4rem 2.5rem;border-right:0.5px solid var(--brd)}
+.about-big{
+  font-family:'DM Serif Display',serif;font-size:clamp(1.6rem,3vw,2.2rem);
+  line-height:1.35;color:var(--wht);margin-bottom:2rem;
+}
+.about-big em{font-style:italic;color:var(--gry)}
+.about-body{font-size:0.88rem;color:var(--gry);line-height:1.85;margin-bottom:1.5rem}
+.about-body strong{color:var(--wht);font-weight:500}
+.about-r{padding:4rem 2.5rem;display:flex;flex-direction:column;gap:0}
+.cap-item{
+  padding:1.5rem 0;border-bottom:0.5px solid var(--brd);
+  display:flex;justify-content:space-between;align-items:center;
+  cursor:none;
+}
+.cap-item:first-child{border-top:0.5px solid var(--brd)}
+.cap-item:hover .cap-name{color:var(--acc)}
+.cap-num{font-size:0.65rem;letter-spacing:2px;color:var(--gry)}
+.cap-name{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:1px;transition:color 0.2s}
+.cap-tag{font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gry);border:0.5px solid var(--brd);padding:0.2rem 0.6rem}
+
+.skills-row{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-bottom:0.5px solid var(--brd);
+}
+.sk-col{padding:2.5rem 2.5rem;border-right:0.5px solid var(--brd)}
+.sk-col:last-child{border-right:none}
+.sk-head{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--gry);margin-bottom:1.5rem}
+.sk-list{list-style:none;display:flex;flex-direction:column;gap:0.8rem}
+.sk-list li{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:0.88rem;padding-bottom:0.8rem;border-bottom:0.5px solid var(--brd);
+}
+.sk-list li:last-child{border-bottom:none}
+.sk-pct{font-size:0.72rem;color:var(--acc);font-weight:600}
+
+.interests-strip{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  border-bottom:0.5px solid var(--brd);
+}
+.int-col{
+  padding:2rem 1.5rem;border-right:0.5px solid var(--brd);
+  cursor:none;transition:background 0.2s;
+}
+.int-col:last-child{border-right:none}
+.int-col:hover{background:rgba(255,60,0,0.04)}
+.int-ico{font-size:1.4rem;margin-bottom:0.8rem;display:block}
+.int-lbl{font-size:0.75rem;font-weight:500;margin-bottom:0.3rem}
+.int-sub{font-size:0.7rem;color:var(--gry);line-height:1.5}
+
+.contact-section{
+  display:grid;grid-template-columns:1fr 1fr;
+  min-height:50vh;
+}
+.contact-l{
+  padding:4rem 2.5rem;border-right:0.5px solid var(--brd);
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.contact-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,8vw,7rem);line-height:0.9;letter-spacing:-1px}
+.contact-big span{color:transparent;-webkit-text-stroke:1px var(--wht)}
+.contact-r{padding:4rem 2.5rem;display:flex;flex-direction:column;justify-content:center;gap:1.5rem}
+.c-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.2rem 0;border-bottom:0.5px solid var(--brd);
+}
+.c-row:first-child{border-top:0.5px solid var(--brd)}
+.c-lbl{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--gry)}
+.c-val{font-size:0.88rem;font-weight:500}
+.c-val a{color:var(--wht);text-decoration:none;transition:color 0.2s;cursor:none}
+.c-val a:hover{color:var(--acc)}
+.email-big{
+  font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;
+  color:var(--acc);text-decoration:none;display:block;margin-top:1.5rem;cursor:none;
+}
+
+footer{
+  padding:1.2rem 2.5rem;display:flex;justify-content:space-between;align-items:center;
+  border-top:0.5px solid var(--brd);
+}
+footer p{font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gry)}
+footer span{color:var(--acc)}
+.footer-links{display:flex;gap:2rem}
+.footer-links a{font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gry);text-decoration:none;transition:color 0.2s;cursor:none}
+.footer-links a:hover{color:var(--wht)}
+
+@keyframes revealUp{to{transform:translateY(0)}}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+
+<h2 class="sr-only">Aayush Kafle — award-level personal portfolio</h2>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <div class="nav-l">
+    <div class="nav-logo">Aayush Kafle</div>
+    <span class="nav-tag">Portfolio 2025</span>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+  <div class="nav-r">
+    <div class="nav-score"><span class="score-dot"></span>Open to work</div>
+    <button class="nav-submit">Hire Me</button>
+  </div>
+</nav>
+
+<div class="ticker">
+  <div class="ticker-inner" id="ticker">
+    <span class="ticker-item">Video Editor <span>✦</span></span>
+    <span class="ticker-item">Grade 11 Student</span>
+    <span class="ticker-item">Web Developer <span>✦</span></span>
+    <span class="ticker-item">Kathmandu, Nepal <span>🇳🇵</span></span>
+    <span class="ticker-item">Available for Freelance <span>✦</span></span>
+    <span class="ticker-item">Bhimsen Adarsha School</span>
+    <span class="ticker-item">Creative Direction <span>✦</span></span>
+    <span class="ticker-item">Visual Storytelling</span>
+    <span class="ticker-item">Video Editor <span>✦</span></span>
+    <span class="ticker-item">Grade 11 Student</span>
+    <span class="ticker-item">Web Developer <span>✦</span></span>
+    <span class="ticker-item">Kathmandu, Nepal <span>🇳🇵</span></span>
+    <span class="ticker-item">Available for Freelance <span>✦</span></span>
+    <span class="ticker-item">Bhimsen Adarsha School</span>
+    <span class="ticker-item">Creative Direction <span>✦</span></span>
+    <span class="ticker-item">Visual Storytelling</span>
+  </div>
+</div>
+
+<div class="hero" id="home">
+  <div class="hero-left">
+    <div class="hero-eyebrow">— Portfolio 2025 · Kathmandu, Nepal</div>
+    <div class="hero-name">
+      <span class="line">AAYUSH</span>
+      <span class="line">KAFLE</span>
+      <span class="line">STUDIO</span>
+    </div>
+    <div class="hero-bottom">
+      <p class="hero-desc">Grade 11 student turned <strong>video editor</strong> and <strong>web developer</strong> — building things that look like they cost more than a school tuition.</p>
+      <a href="#work" class="hero-cta">
+        View Work
+        <div class="cta-arrow">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="#f5f2ee" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-poster">
+      <canvas class="poster-canvas" id="heroArt"></canvas>
+      <div class="poster-label">Creative · Visual · Digital</div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-n" id="counter1">0</div><div class="stat-l">Projects</div></div>
+      <div class="stat"><div class="stat-n" id="counter2">0</div><div class="stat-l">Clients</div></div>
+      <div class="stat"><div class="stat-n" id="counter3">0</div><div class="stat-l">Years Exp.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="marquee-section">
+  <div class="marquee-track" id="mq">
+    <span class="marquee-item">VIDEO EDITING</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item accent">AAYUSH KAFLE</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">WEB DESIGN</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">NEPAL</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">CREATIVE</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item accent">2025</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">VIDEO EDITING</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item accent">AAYUSH KAFLE</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">WEB DESIGN</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">NEPAL</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item">CREATIVE</span><span class="marquee-dot">✦</span>
+    <span class="marquee-item accent">2025</span><span class="marquee-dot">✦</span>
+  </div>
+</div>
+
+<div class="work-section" id="work">
+  <div class="work-header">
+    <div class="work-title-wrap">
+      <div class="work-num">02 — Selected Work</div>
+      <div class="work-title">Projects</div>
+    </div>
+    <a href="#" class="view-all">View All Work <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="#888" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
+  <div class="work-grid">
+    <div class="work-item featured">
+      <canvas class="work-canvas" id="wc1"></canvas>
+      <div class="work-overlay"></div>
+      <div class="work-info">
+        <div class="work-tag-sm">Featured · Video</div>
+        <div class="work-ttl">Cinematic Short-Form Series</div>
+      </div>
+    </div>
+    <div class="work-item">
+      <canvas class="work-canvas" id="wc2"></canvas>
+      <div class="work-overlay"></div>
+      <div class="work-info">
+        <div class="work-tag-sm">Web</div>
+        <div class="work-ttl">This Portfolio Site</div>
+      </div>
+    </div>
+    <div class="work-item">
+      <canvas class="work-canvas" id="wc3"></canvas>
+      <div class="work-overlay"></div>
+      <div class="work-info">
+        <div class="work-tag-sm">Freelance</div>
+        <div class="work-ttl">Local Business Promo</div>
+      </div>
+    </div>
+    <div class="work-item">
+      <canvas class="work-canvas" id="wc4"></canvas>
+      <div class="work-overlay"></div>
+      <div class="work-info">
+        <div class="work-tag-sm">School</div>
+        <div class="work-ttl">Event Highlight Film</div>
+      </div>
+    </div>
+    <div class="work-item">
+      <canvas class="work-canvas" id="wc5"></canvas>
+      <div class="work-overlay"></div>
+      <div class="work-info">
+        <div class="work-tag-sm">Branding</div>
+        <div class="work-ttl">Visual Identity Work</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="about-section" id="about">
+  <div class="about-l">
+    <div class="about-big">
+      Not your average <em>Grade 11 student.</em><br/>A creator who learned the hard way — by doing.
+    </div>
+    <p class="about-body">I'm <strong>Aayush Kafle</strong>, 16, from Kathmandu. While most students study for exams, I'm studying frame rates, color grades, and CSS grid. Video editing pulled me in first — the ability to take raw footage and turn it into something people actually feel. Then web development opened a second door.</p>
+    <p class="about-body">I've edited for real clients, missed real deadlines, fixed real bugs at 1am, and shipped real work. That's the education no classroom gives you.</p>
+  </div>
+  <div class="about-r">
+    <div class="cap-item">
+      <span class="cap-num">01</span>
+      <span class="cap-name">Video Editing</span>
+      <span class="cap-tag">Primary</span>
+    </div>
+    <div class="cap-item">
+      <span class="cap-num">02</span>
+      <span class="cap-name">Web Development</span>
+      <span class="cap-tag">Growing</span>
+    </div>
+    <div class="cap-item">
+      <span class="cap-num">03</span>
+      <span class="cap-name">Visual Design</span>
+      <span class="cap-tag">Core</span>
+    </div>
+    <div class="cap-item">
+      <span class="cap-num">04</span>
+      <span class="cap-name">Content Strategy</span>
+      <span class="cap-tag">Developing</span>
+    </div>
+    <div class="cap-item">
+      <span class="cap-num">05</span>
+      <span class="cap-name">Creative Direction</span>
+      <span class="cap-tag">Passion</span>
+    </div>
+  </div>
+</div>
+
+<div class="skills-row" id="skills">
+  <div class="sk-col">
+    <div class="sk-head">01 — Video Production</div>
+    <ul class="sk-list">
+      <li><span>Adobe Premiere Pro</span><span class="sk-pct">85%</span></li>
+      <li><span>CapCut</span><span class="sk-pct">90%</span></li>
+      <li><span>DaVinci Resolve</span><span class="sk-pct">65%</span></li>
+      <li><span>After Effects</span><span class="sk-pct">50%</span></li>
+      <li><span>Sound Design</span><span class="sk-pct">75%</span></li>
+    </ul>
+  </div>
+  <div class="sk-col">
+    <div class="sk-head">02 — Web & Code</div>
+    <ul class="sk-list">
+      <li><span>HTML5</span><span class="sk-pct">55%</span></li>
+      <li><span>CSS3</span><span class="sk-pct">50%</span></li>
+      <li><span>JavaScript</span><span class="sk-pct">30%</span></li>
+      <li><span>Responsive Design</span><span class="sk-pct">45%</span></li>
+      <li><span>Git Basics</span><span class="sk-pct">25%</span></li>
+    </ul>
+  </div>
+  <div class="sk-col">
+    <div class="sk-head">03 — Creative</div>
+    <ul class="sk-list">
+      <li><span>Thumbnail Design</span><span class="sk-pct">80%</span></li>
+      <li><span>Color Grading</span><span class="sk-pct">78%</span></li>
+      <li><span>Typography</span><span class="sk-pct">70%</span></li>
+      <li><span>Brand Identity</span><span class="sk-pct">55%</span></li>
+      <li><span>Photography</span><span class="sk-pct">60%</span></li>
+    </ul>
+  </div>
+</div>
+
+<div class="interests-strip">
+  <div class="int-col">
+    <span class="int-ico">🎮</span>
+    <div class="int-lbl">Gaming</div>
+    <div class="int-sub">Strategy & FPS — teaches fast decisions</div>
+  </div>
+  <div class="int-col">
+    <span class="int-ico">🤖</span>
+    <div class="int-lbl">AI & Tech</div>
+    <div class="int-sub">Using AI tools daily, building with them soon</div>
+  </div>
+  <div class="int-col">
+    <span class="int-ico">🎵</span>
+    <div class="int-lbl">Music</div>
+    <div class="int-sub">Half of every great edit is the soundtrack</div>
+  </div>
+  <div class="int-col">
+    <span class="int-ico">🌏</span>
+    <div class="int-lbl">Nepal</div>
+    <div class="int-sub">Documenting the untold stories of Kathmandu</div>
+  </div>
+  <div class="int-col">
+    <span class="int-ico">📺</span>
+    <div class="int-lbl">YouTube</div>
+    <div class="int-sub">Study creators like athletes study film</div>
+  </div>
+  <div class="int-col">
+    <span class="int-ico">🚀</span>
+    <div class="int-lbl">Startups</div>
+    <div class="int-sub">Reading how companies are built from nothing</div>
+  </div>
+</div>
+
+<div class="contact-section" id="contact">
+  <div class="contact-l">
+    <div>
+      <div style="font-size:0.65rem;letter-spacing:4px;text-transform:uppercase;color:var(--gry);margin-bottom:1.5rem">05 — Get In Touch</div>
+      <div class="contact-big">
+        LET'S<br/>
+        <span>WORK</span><br/>
+        TOGETHER
+      </div>
+    </div>
+    <div>
+      <p style="font-size:0.85rem;color:var(--gry);line-height:1.8;max-width:300px;margin-bottom:1.5rem">I'm a 16-year-old from Nepal who takes work seriously. Need a video edited or a site built? Let's talk.</p>
+      <a href="mailto:kafleaayush02@gmail.com" class="email-big">kafleaayush02@gmail.com</a>
+    </div>
+  </div>
+  <div class="contact-r">
+    <div class="c-row">
+      <span class="c-lbl">Location</span>
+      <span class="c-val">Kathmandu, Nepal 🇳🇵</span>
+    </div>
+    <div class="c-row">
+      <span class="c-lbl">School</span>
+      <span class="c-val">Bhimsen Adarsha Secondary</span>
+    </div>
+    <div class="c-row">
+      <span class="c-lbl">Status</span>
+      <span class="c-val" style="color:#00e676">Available for Work</span>
+    </div>
+    <div class="c-row">
+      <span class="c-lbl">Email</span>
+      <span class="c-val"><a href="mailto:kafleaayush02@gmail.com">kafleaayush02@gmail.com</a></span>
+    </div>
+    <div class="c-row">
+      <span class="c-lbl">GitHub</span>
+      <span class="c-val"><a href="#">github.com/aayushkafle</a></span>
+    </div>
+    <div class="c-row">
+      <span class="c-lbl">Instagram</span>
+      <span class="c-val"><a href="#">@aayushkafle</a></span>
+    </div>
+    <div class="c-row" style="border-bottom:none">
+      <span class="c-lbl">Response</span>
+      <span class="c-val">Within 24 hours</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2025 <span>Aayush Kafle</span> — All rights reserved</p>
+  <div class="footer-links">
+    <a href="#">GitHub</a>
+    <a href="#">YouTube</a>
+    <a href="#">Instagram</a>
+    <a href="#">LinkedIn</a>
+  </div>
+  <p>Built with code + no sleep</p>
+</footer>
+
+<script>
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing)})();
+document.querySelectorAll('a,button,.work-item,.cap-item,.int-col').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('expand'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('expand'));
+});
+
+function drawHeroArt(){
+  const c=document.getElementById('heroArt');
+  if(!c)return;
+  const p=c.parentElement;
+  c.width=p.offsetWidth; c.height=p.offsetHeight;
+  const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
+  ctx.fillStyle='#0d0d0d';ctx.fillRect(0,0,W,H);
+  const grid=12;
+  for(let x=0;x<=W;x+=W/grid){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.strokeStyle='rgba(245,242,238,0.04)';ctx.lineWidth=0.5;ctx.stroke()}
+  for(let y=0;y<=H;y+=H/grid){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.strokeStyle='rgba(245,242,238,0.04)';ctx.lineWidth=0.5;ctx.stroke()}
+  const cx=W/2,cy=H/2;
+  for(let r=20;r<Math.min(W,H)*0.7;r+=r*0.22){
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,60,0,${0.08*(1-r/(Math.min(W,H)*0.7))})`;
+    ctx.lineWidth=0.5;ctx.stroke();
+  }
+  ctx.font='bold '+Math.min(W,H)*0.28+'px Bebas Neue,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(255,60,0,0.06)';ctx.fillText('AK',cx,cy);
+  ctx.fillStyle='rgba(245,242,238,0.06)';
+  ctx.font='0.6rem Space Grotesk,sans-serif';
+  ctx.letterSpacing='4px';
+  for(let i=0;i<8;i++){
+    const angle=(i/8)*Math.PI*2;
+    const rad=Math.min(W,H)*0.32;
+    ctx.fillText('✦',cx+Math.cos(angle)*rad,cy+Math.sin(angle)*rad);
+  }
+}
+
+const wColors=[['#1a0a00','#ff3c00'],['#000d1a','#4f8ef7'],['#0a000d','#7c5cfc'],['#001a0a','#00e676'],['#1a1a00','#ffeb3b']];
+function drawWorkCanvas(id,idx){
+  const c=document.getElementById(id);
+  if(!c)return;
+  c.width=c.offsetWidth||400;c.height=c.offsetHeight||300;
+  const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
+  const [bg,ac]=wColors[idx%wColors.length];
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  const g=8;
+  for(let x=0;x<W;x+=W/g){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.strokeStyle='rgba(245,242,238,0.03)';ctx.lineWidth=0.5;ctx.stroke()}
+  for(let y=0;y<H;y+=H/g){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.strokeStyle='rgba(245,242,238,0.03)';ctx.lineWidth=0.5;ctx.stroke()}
+  ctx.beginPath();ctx.arc(W*0.5,H*0.5,Math.min(W,H)*0.3,0,Math.PI*2);
+  ctx.strokeStyle=ac+'22';ctx.lineWidth=1;ctx.stroke();
+  ctx.beginPath();ctx.arc(W*0.5,H*0.5,Math.min(W,H)*0.15,0,Math.PI*2);
+  ctx.strokeStyle=ac+'44';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle=ac+'33';ctx.beginPath();ctx.arc(W*0.5,H*0.5,Math.min(W,H)*0.05,0,Math.PI*2);ctx.fill();
+  ctx.font='bold '+Math.min(W,H)*0.18+'px Bebas Neue,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle=ac+'55';
+  const labels=['VIDEO','WEB','PROMO','EVENT','BRAND'];
+  ctx.fillText(labels[idx%labels.length],W*0.5,H*0.5);
+}
+
+function animCount(id,target,dur=1500){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const step=target/dur*16;let cur=0;
+  const t=setInterval(()=>{cur=Math.min(cur+step,target);el.textContent=Math.floor(cur)+(target===3?'+':'');if(cur>=target)clearInterval(t)},16);
+}
+
+window.addEventListener('load',()=>{
+  drawHeroArt();
+  ['wc1','wc2','wc3','wc4','wc5'].forEach((id,i)=>drawWorkCanvas(id,i));
+  setTimeout(()=>{animCount('counter1',12);animCount('counter2',5);animCount('counter3',3)},600);
+  window.addEventListener('resize',()=>{drawHeroArt();['wc1','wc2','wc3','wc4','wc5'].forEach((id,i)=>drawWorkCanvas(id,i))});
+});
+
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)'}
+  });
+},{threshold:0.08});
+document.querySelectorAll('.cap-item,.sk-col,.int-col,.c-row').forEach(el=>{
+  el.style.opacity='0';el.style.transform='translateY(20px)';
+  el.style.transition='opacity 0.6s ease,transform 0.6s ease,background 0.2s,color 0.2s';
+  obs.observe(el);
+});
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    const t=document.querySelector(this.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
